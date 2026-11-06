@@ -49,6 +49,8 @@ jobs:
 
       - name: إعداد GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: تجهيز ملفات الصفحة
         uses: actions/upload-pages-artifact@v3
