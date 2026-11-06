@@ -30,6 +30,11 @@ const categoryLabels = {
   'أخرى': 'أخرى'
 };
 
+const DATA_SOURCES = [
+  'https://raw.githubusercontent.com/dkdsgf/dsa1-opportunities/main/data.json',
+  'data.json'
+];
+
 function escapeHTML(value = '') {
   return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[char]));
 }
@@ -116,19 +121,26 @@ function renderData(data) {
 }
 
 async function loadData() {
-  try {
-    const response = await fetch(`data.json?v=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    renderData(data);
-  } catch (error) {
+  let lastError;
+  for (const source of DATA_SOURCES) {
+    try {
+      const response = await fetch(`${source}?v=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      renderData(data);
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  {
     els.updated.textContent = 'تعذر تحديث البيانات الآن';
     els.status.textContent = 'تعذر جلب البيانات. جرّب تحديث الصفحة لاحقًا.';
     els.grid.hidden = true;
     els.empty.hidden = false;
     els.empty.querySelector('h3').textContent = 'البيانات غير متاحة مؤقتًا';
     els.empty.querySelector('p').textContent = 'تعذر تحميل آخر نسخة من المنشورات، لكن يمكنك زيارة الحساب الأصلي من الرابط أعلى الصفحة.';
-    console.error('Failed to load data.json', error);
+    console.error('Failed to load live and local data sources', lastError);
   }
 }
 
