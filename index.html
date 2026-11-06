@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="منصة خفيفة تجمع فرص الدورات والبرامج والورش والبطولات من حساب عمادة شؤون الطلاب بجامعة شقراء." />
+    <meta name="theme-color" content="#12372a" />
+    <title>فرص عمادة شؤون الطلاب</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="./" aria-label="العودة إلى الصفحة الرئيسية">
+          <span class="brand-mark" aria-hidden="true">ف</span>
+          <span>
+            <strong>فرص عمادة شؤون الطلاب</strong>
+            <small>جامعة شقراء · تحديث تلقائي</small>
+          </span>
+        </a>
+        <a class="source-link" href="https://x.com/1_dsa1" target="_blank" rel="noreferrer">المصدر <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero shell">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="live-dot"></span> موجز الفرص الطلابية</p>
+          <h1>لا تفوّت فرصة<br /><em>تطوّرك القادمة.</em></h1>
+          <p class="hero-text">نجمع لك أحدث الدورات والبرامج والورش والمحاضرات والبطولات والمبادرات المنشورة من حساب عمادة شؤون الطلاب، في صفحة واحدة سهلة البحث.</p>
+          <div class="hero-meta">
+            <span id="last-updated">جارٍ تحميل آخر تحديث…</span>
+            <span class="meta-divider" aria-hidden="true"></span>
+            <span>المصدر: <a href="https://x.com/1_dsa1" target="_blank" rel="noreferrer">@1_dsa1</a></span>
+          </div>
+        </div>
+        <div class="hero-note" aria-label="معلومة عن الصفحة">
+          <span class="note-number">01</span>
+          <p>كل بطاقة تقودك إلى المنشور الأصلي على X للتفاصيل والتسجيل.</p>
+          <span class="note-line"></span>
+        </div>
+      </section>
+
+      <section class="shell stats" aria-label="إحصاءات المحتوى">
+        <div class="stat-card"><strong id="total-count">—</strong><span>فرصة منشورة</span></div>
+        <div class="stat-card"><strong id="category-count">—</strong><span>تصنيفات</span></div>
+        <div class="stat-card accent-stat"><strong>24/7</strong><span>تحديث عبر GitHub Actions</span></div>
+      </section>
+
+      <section class="shell feed-section" aria-labelledby="feed-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">استكشف المحتوى</p>
+            <h2 id="feed-title">آخر الفرص</h2>
+          </div>
+          <p class="section-description">اكتب كلمة للبحث أو اختر تصنيفًا لتصل لما يهمك بسرعة.</p>
+        </div>
+
+        <div class="toolbar">
+          <label class="search-box">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <span class="sr-only">ابحث في المنشورات</span>
+            <input id="search-input" type="search" placeholder="ابحث: دورة، ورشة، بطولة…" autocomplete="off" />
+            <button id="clear-search" class="clear-search" type="button" aria-label="مسح البحث" hidden>×</button>
+          </label>
+          <div id="filters" class="filters" role="tablist" aria-label="تصفية حسب التصنيف"></div>
+        </div>
+
+        <div id="feed-status" class="feed-status" role="status"></div>
+        <div id="posts-grid" class="posts-grid" aria-live="polite"></div>
+        <div id="empty-state" class="empty-state" hidden>
+          <span class="empty-icon">⌁</span>
+          <h3>ما لقينا نتائج بهذا البحث</h3>
+          <p>جرّب كلمة أخرى أو اختر «كل الفرص» لعرض المحتوى المتاح.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <span>© <span id="year"></span> فرص عمادة شؤون الطلاب</span>
+        <span>صفحة مجتمعية تعرض روابط المنشورات الأصلية</span>
+      </div>
+    </footer>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
