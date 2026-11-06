@@ -82,19 +82,8 @@ function renderFilters() {
 function renderKeywordChips() {
   const keywords = state.data.searchKeywords || [];
   els.keywordChips.innerHTML = keywords.map((keyword) => `
-    <button class="keyword-chip" type="button" data-keyword="${escapeHTML(keyword)}">${escapeHTML(keyword)}</button>
+    <a class="keyword-chip" href="https://x.com/search?q=${encodeURIComponent(`from:1_dsa1 "${keyword}"`)}&src=typed_query&f=live" target="_blank" rel="noreferrer" title="بحث كامل في X عن ${escapeHTML(keyword)}">${escapeHTML(keyword)} ↗</a>
   `).join('');
-  els.keywordChips.querySelectorAll('[data-keyword]').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.activeCategory = 'الكل';
-      state.query = button.dataset.keyword;
-      els.search.value = state.query;
-      els.clear.hidden = false;
-      renderFilters();
-      renderPosts();
-      els.search.focus();
-    });
-  });
 }
 
 function filteredPosts() {
