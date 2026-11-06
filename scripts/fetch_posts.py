@@ -17,7 +17,7 @@ HANDLE = "1_dsa1"
 PROFILE_URL = f"https://x.com/{HANDLE}"
 READER_URL = f"https://r.jina.ai/http://x.com/{HANDLE}"
 OUTPUT = Path(__file__).resolve().parents[1] / "data.json"
-MAX_POSTS = 36
+MAX_POSTS = 60
 
 CATEGORY_RULES = [
     ("دورات", ["دورة", "دورات", "دوره", "دورات", "الدورة", "الدورات", "الدوره"]),

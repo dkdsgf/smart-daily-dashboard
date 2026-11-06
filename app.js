@@ -14,6 +14,7 @@ const els = {
   updated: document.querySelector('#last-updated'),
   total: document.querySelector('#total-count'),
   categoryCount: document.querySelector('#category-count'),
+  keywordChips: document.querySelector('#keyword-chips'),
   year: document.querySelector('#year')
 };
 
@@ -78,6 +79,24 @@ function renderFilters() {
   });
 }
 
+function renderKeywordChips() {
+  const keywords = state.data.searchKeywords || [];
+  els.keywordChips.innerHTML = keywords.map((keyword) => `
+    <button class="keyword-chip" type="button" data-keyword="${escapeHTML(keyword)}">${escapeHTML(keyword)}</button>
+  `).join('');
+  els.keywordChips.querySelectorAll('[data-keyword]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeCategory = 'الكل';
+      state.query = button.dataset.keyword;
+      els.search.value = state.query;
+      els.clear.hidden = false;
+      renderFilters();
+      renderPosts();
+      els.search.focus();
+    });
+  });
+}
+
 function filteredPosts() {
   const query = state.query.trim().toLocaleLowerCase('ar');
   return (state.data.posts || []).filter((post) => {
@@ -119,6 +138,7 @@ function renderData(data) {
   els.total.textContent = data.posts?.length || 0;
   els.categoryCount.textContent = data.categories?.length || 0;
   els.updated.textContent = relativeUpdated(data.generatedAt);
+  renderKeywordChips();
   renderFilters();
   renderPosts();
 }
