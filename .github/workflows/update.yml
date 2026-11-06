@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -17,9 +15,6 @@ concurrency:
 jobs:
   update-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: جلب المستودع
         uses: actions/checkout@v4
@@ -46,17 +41,3 @@ jobs:
             git commit -m "chore: تحديث موجز فرص عمادة شؤون الطلاب"
             git push
           fi
-
-      - name: إعداد GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
-      - name: تجهيز ملفات الصفحة
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "."
-
-      - name: نشر الصفحة
-        id: deployment
-        uses: actions/deploy-pages@v4
