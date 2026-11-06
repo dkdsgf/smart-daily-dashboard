@@ -32,6 +32,7 @@ a { color: inherit; }
 .brand strong { font-size: 14px; font-weight: 700; }
 .brand small { color: var(--muted); font-size: 11px; margin-top: 3px; }
 .source-link { color: var(--green-2); text-decoration: none; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--green-2); padding-bottom: 2px; }
+.header-links { display: flex; align-items: center; gap: 18px; }
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 80px; padding-top: 92px; padding-bottom: 68px; align-items: end; }
 .eyebrow { margin: 0 0 14px; color: var(--green-2); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
 .live-dot { width: 7px; height: 7px; display: inline-block; border-radius: 50%; background: #bd684b; margin-left: 7px; box-shadow: 0 0 0 5px rgba(189, 104, 75, .11); }

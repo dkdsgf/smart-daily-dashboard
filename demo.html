@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="صفحة تجريبية لأزرار الكلمات المفتاحية وتصفية التغريدات محليًا." />
+    <title>تجربة البحث المحلي | فرص عمادة شؤون الطلاب</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="demo.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="./" aria-label="العودة إلى الصفحة الرئيسية">
+          <span class="brand-mark" aria-hidden="true">ف</span>
+          <span><strong>فرص عمادة شؤون الطلاب</strong><small>صفحة تجريبية للبحث المحلي</small></span>
+        </a>
+        <a class="source-link" href="./">العودة للموقع <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main class="demo-main shell">
+      <section class="demo-intro">
+        <p class="eyebrow"><span class="live-dot"></span> تجربة محلية</p>
+        <h1>اختبر البحث<br /><em>بضغطة واحدة.</em></h1>
+        <p>هذه صفحة تجريبية تستخدم ملف تغريدات محليًا. اضغط أي كلمة مفتاحية لتصفية كل التغريدات المطابقة داخل الصفحة، دون فتح X.</p>
+      </section>
+
+      <section class="demo-panel" aria-labelledby="demo-title">
+        <div class="demo-panel-head">
+          <div>
+            <p class="eyebrow">الكلمات المفتاحية</p>
+            <h2 id="demo-title">اختر كلمة للفلترة</h2>
+          </div>
+          <span id="demo-source-status" class="demo-source-status">جارٍ جلب الملف المحلي…</span>
+        </div>
+        <div id="demo-keywords" class="demo-keywords" aria-label="الكلمات المفتاحية"></div>
+        <div class="demo-controls">
+          <label class="search-box">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <span class="sr-only">ابحث في التغريدات التجريبية</span>
+            <input id="demo-search" type="search" placeholder="ابحث داخل التغريدات التجريبية…" autocomplete="off" />
+            <button id="demo-clear" class="clear-search" type="button" aria-label="مسح البحث" hidden>×</button>
+          </label>
+          <button id="demo-reset" class="demo-reset" type="button">عرض الكل</button>
+        </div>
+        <div id="demo-status" class="feed-status" role="status"></div>
+        <div id="demo-posts" class="posts-grid" aria-live="polite"></div>
+        <div id="demo-empty" class="empty-state" hidden>
+          <span class="empty-icon">⌁</span>
+          <h3>لا توجد تغريدات مطابقة</h3>
+          <p>جرّب كلمة أخرى أو اضغط «عرض الكل».</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="shell footer-inner"><span>صفحة تجريبية · بيانات محلية</span><span>لا تمثل اتصالًا مباشرًا مع X</span></div></footer>
+    <script src="demo.js" defer></script>
+  </body>
+</html>
