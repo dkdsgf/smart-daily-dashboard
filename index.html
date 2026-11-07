@@ -3,91 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="منصة خفيفة تجمع فرص الدورات والبرامج والورش والبطولات من حساب عمادة شؤون الطلاب بجامعة شقراء." />
-    <meta name="theme-color" content="#12372a" />
-    <title>فرص عمادة شؤون الطلاب</title>
+    <meta name="description" content="يومي الذكي: لوحة تحكم عربية لإدارة المهام اليومية والتركيز على الخطوة التالية." />
+    <meta name="theme-color" content="#101827" />
+    <title>يومي الذكي | لوحة المهام اليومية</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="shell header-inner">
-        <a class="brand" href="./" aria-label="العودة إلى الصفحة الرئيسية">
-          <span class="brand-mark" aria-hidden="true">ف</span>
-          <span>
-            <strong>فرص عمادة شؤون الطلاب</strong>
-            <small>جامعة شقراء · تحديث تلقائي</small>
-          </span>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="يومي الذكي">
+          <span class="brand-mark">ي<span></span></span>
+          <span><strong>يومي الذكي</strong><small>خطة واضحة. يوم أخف.</small></span>
         </a>
-        <div class="header-links"><a class="source-link" href="demo.html">تجربة البحث</a><a class="source-link" href="https://x.com/1_dsa1" target="_blank" rel="noreferrer">المصدر <span aria-hidden="true">↗</span></a></div>
-      </div>
-    </header>
+        <div class="topbar-meta">
+          <span id="today-label">اليوم</span>
+          <span class="topbar-dot"></span>
+          <span class="save-state"><i></i> محفوظ محليًا</span>
+        </div>
+        <button id="add-task-top" class="primary-button" type="button"><span>＋</span> مهمة جديدة</button>
+      </header>
 
-    <main>
-      <section class="hero shell">
-        <div class="hero-copy">
-          <p class="eyebrow"><span class="live-dot"></span> موجز الفرص الطلابية</p>
-          <h1>لا تفوّت فرصة<br /><em>تطوّرك القادمة.</em></h1>
-          <p class="hero-text">نجمع لك أحدث الدورات والبرامج والورش والمحاضرات والبطولات والمبادرات المنشورة من حساب عمادة شؤون الطلاب، في صفحة واحدة سهلة البحث.</p>
-          <div class="hero-meta">
-            <span id="last-updated">جارٍ تحميل آخر تحديث…</span>
-            <span class="meta-divider" aria-hidden="true"></span>
-            <span>المصدر: <a href="https://x.com/1_dsa1" target="_blank" rel="noreferrer">@1_dsa1</a></span>
+      <main>
+        <section class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="pulse-dot"></span> لوحة يومك</p>
+            <h1>خلّ المهمة<br /><em>التالية واضحة.</em></h1>
+            <p class="hero-text">رتّب طاقتك قبل وقتك. أضف ما يشغلك، ودع «يومي الذكي» يرشّح لك الخطوة الأنسب الآن.</p>
           </div>
-        </div>
-        <div class="hero-note" aria-label="معلومة عن الصفحة">
-          <span class="note-number">01</span>
-          <p>كل بطاقة تقودك إلى المنشور الأصلي على X للتفاصيل والتسجيل.</p>
-          <span class="note-line"></span>
-        </div>
-      </section>
-
-      <section class="shell stats" aria-label="إحصاءات المحتوى">
-        <div class="stat-card"><strong id="total-count">—</strong><span>فرصة منشورة</span></div>
-        <div class="stat-card"><strong id="category-count">—</strong><span>تصنيفات</span></div>
-        <div class="stat-card accent-stat"><strong>24/7</strong><span>تحديث عبر GitHub Actions</span></div>
-      </section>
-
-      <section class="shell feed-section" aria-labelledby="feed-title">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">استكشف المحتوى</p>
-            <h2 id="feed-title">آخر الفرص</h2>
+          <div class="hero-quote">
+            <span class="quote-mark">“</span>
+            <p id="daily-nudge">الإنجاز لا يحتاج يومًا مثاليًا، يحتاج بداية صغيرة.</p>
+            <small>ملاحظة اليوم</small>
           </div>
-          <p class="section-description">اكتب كلمة للبحث أو اختر تصنيفًا لتصل لما يهمك بسرعة.</p>
-        </div>
+        </section>
 
-        <div class="toolbar">
-          <label class="search-box">
-            <span class="search-icon" aria-hidden="true">⌕</span>
-            <span class="sr-only">ابحث في المنشورات</span>
-            <input id="search-input" type="search" placeholder="ابحث: دورة، ورشة، بطولة…" autocomplete="off" />
-            <button id="clear-search" class="clear-search" type="button" aria-label="مسح البحث" hidden>×</button>
-          </label>
-          <div id="filters" class="filters" role="tablist" aria-label="تصفية حسب التصنيف"></div>
-        </div>
-        <p class="keyword-hint">اضغط أي كلمة لفتح بحث كامل في X داخل منشورات @1_dsa1، بينما البحث أعلاه يصفّي المنشورات المحملة في الصفحة.</p>
-        <div id="keyword-chips" class="keyword-chips" aria-label="كلمات بحث سريعة"></div>
+        <section class="stats-grid" aria-label="ملخص اليوم">
+          <article class="stat-card stat-progress"><div class="stat-label">إنجاز اليوم <span>نسبة الإكمال</span></div><strong id="progress-value">0%</strong><div class="progress-track"><span id="progress-bar"></span></div></article>
+          <article class="stat-card"><div class="stat-label">كل المهام <span>في قائمتك</span></div><strong id="total-count">0</strong><small class="stat-foot" id="active-count">0 مفتوحة الآن</small></article>
+          <article class="stat-card"><div class="stat-label">مكتملة <span>اليوم</span></div><strong id="completed-count">0</strong><small class="stat-foot positive" id="completed-note">بداية جيدة</small></article>
+          <article class="stat-card stat-alert"><div class="stat-label">متأخرة <span>تحتاج انتباهًا</span></div><strong id="overdue-count">0</strong><small class="stat-foot" id="overdue-note">كل شيء تحت السيطرة</small></article>
+        </section>
 
-        <div id="feed-status" class="feed-status" role="status"></div>
-        <div id="posts-grid" class="posts-grid" aria-live="polite"></div>
-        <div id="empty-state" class="empty-state" hidden>
-          <span class="empty-icon">⌁</span>
-          <h3>ما لقينا نتائج بهذا البحث</h3>
-          <p>جرّب كلمة أخرى أو اختر «كل الفرص» لعرض المحتوى المتاح.</p>
-        </div>
-      </section>
-    </main>
+        <section class="focus-grid">
+          <article class="suggestion-card" aria-labelledby="suggestion-title">
+            <div class="card-kicker"><span class="spark">✦</span> اقتراح ذكي</div>
+            <div class="suggestion-body"><div><h2 id="suggestion-title">مهمتك التالية</h2><p id="suggestion-text">أضف مهمة لنقترح لك من أين تبدأ.</p></div><span id="suggestion-priority" class="priority-pill">—</span></div>
+            <div class="suggestion-meta"><span id="suggestion-time">—</span><span>•</span><span id="suggestion-reason">تظهر هنا الأولوية</span></div>
+            <button id="start-suggestion" class="lime-button" type="button" disabled>ابدأ التركيز <span>←</span></button>
+          </article>
+          <article class="timer-card" aria-labelledby="timer-title">
+            <div class="timer-head"><div><p class="card-kicker">جلسة تركيز</p><h2 id="timer-title">وقتك الآن</h2></div><span class="timer-status" id="timer-status">جاهز</span></div>
+            <div class="timer-display" id="timer-display">25:00</div>
+            <div class="timer-task" id="timer-task">اختر مهمة وابدأ جلسة قصيرة.</div>
+            <div class="timer-actions"><button id="timer-toggle" class="timer-main" type="button">ابدأ</button><button id="timer-reset" class="timer-reset" type="button">إعادة ضبط</button></div>
+          </article>
+        </section>
 
-    <footer class="site-footer">
-      <div class="shell footer-inner">
-        <span>© <span id="year"></span> فرص عمادة شؤون الطلاب</span>
-        <span>صفحة مجتمعية تعرض روابط المنشورات الأصلية</span>
-      </div>
-    </footer>
+        <section class="workspace" aria-labelledby="tasks-title">
+          <div class="workspace-head">
+            <div><p class="eyebrow">مساحة العمل</p><h2 id="tasks-title">مهامك اليوم</h2></div>
+            <div class="workspace-controls"><label class="search-field"><span>⌕</span><input id="task-search" type="search" placeholder="ابحث في المهام…" autocomplete="off" /></label><select id="category-filter" aria-label="تصفية حسب التصنيف"><option value="all">كل التصنيفات</option></select><select id="priority-filter" aria-label="تصفية حسب الأولوية"><option value="all">كل الأولويات</option><option value="urgent">عاجلة</option><option value="high">مهمة</option><option value="medium">متوسطة</option><option value="low">خفيفة</option></select></div>
+          </div>
+          <div class="board" id="task-board">
+            <section class="lane" data-status="todo"><div class="lane-head"><div><span class="lane-marker marker-blue"></span><h3>القادمة</h3></div><span class="lane-count" id="todo-count">0</span></div><div class="lane-list" id="todo-list"></div><button class="lane-add" data-add-status="todo" type="button">＋ أضف مهمة</button></section>
+            <section class="lane" data-status="doing"><div class="lane-head"><div><span class="lane-marker marker-lime"></span><h3>قيد التنفيذ</h3></div><span class="lane-count" id="doing-count">0</span></div><div class="lane-list" id="doing-list"></div><button class="lane-add" data-add-status="doing" type="button">＋ أضف مهمة</button></section>
+            <section class="lane" data-status="done"><div class="lane-head"><div><span class="lane-marker marker-gray"></span><h3>مكتملة</h3></div><span class="lane-count" id="done-count">0</span></div><div class="lane-list" id="done-list"></div><button class="lane-add" data-add-status="done" type="button">＋ أضف مهمة</button></section>
+          </div>
+        </section>
 
+        <section class="week-section" aria-labelledby="week-title"><div class="week-head"><div><p class="eyebrow">إيقاعك</p><h2 id="week-title">ملخص آخر 7 أيام</h2></div><p>كل مربع يمثل عدد المهام التي أغلقتها في ذلك اليوم.</p></div><div class="week-chart" id="week-chart"></div></section>
+      </main>
+      <footer class="footer"><span>يومي الذكي <span class="footer-muted">نسخة MVP</span></span><span>بياناتك تبقى على جهازك</span></footer>
+    </div>
+
+    <div class="modal-backdrop" id="task-modal" hidden><section class="task-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><div><p class="eyebrow">تفاصيل المهمة</p><h2 id="modal-title">مهمة جديدة</h2></div><button class="icon-button" id="modal-close" type="button" aria-label="إغلاق">×</button></div><form id="task-form"><label class="field full"><span>ما الذي تريد إنجازه؟</span><input id="task-title" name="title" required maxlength="90" placeholder="مثال: مراجعة العرض التقديمي" /></label><label class="field full"><span>ملاحظة قصيرة <em>اختياري</em></span><textarea id="task-description" name="description" rows="3" maxlength="220" placeholder="أضف سياقًا يساعدك عند العودة للمهمة"></textarea></label><div class="form-grid"><label class="field"><span>التصنيف</span><select id="task-category" name="category"><option>عمل</option><option>دراسة</option><option>شخصي</option><option>صحة</option><option>تعلم</option></select></label><label class="field"><span>الأولوية</span><select id="task-priority" name="priority"><option value="urgent">عاجلة</option><option value="high" selected>مهمة</option><option value="medium">متوسطة</option><option value="low">خفيفة</option></select></label><label class="field"><span>الموعد</span><input id="task-due" name="due" type="date" /></label><label class="field"><span>المدة بالدقائق</span><input id="task-duration" name="duration" type="number" min="5" max="480" step="5" value="30" /></label><label class="field"><span>الطاقة المطلوبة</span><select id="task-energy" name="energy"><option value="low">منخفضة</option><option value="medium" selected>متوسطة</option><option value="high">عالية</option></select></label><label class="field"><span>الحالة</span><select id="task-status" name="status"><option value="todo">قادمة</option><option value="doing">قيد التنفيذ</option><option value="done">مكتملة</option></select></label></div><div class="modal-actions"><button class="secondary-button" id="modal-cancel" type="button">إلغاء</button><button class="primary-button" type="submit">حفظ المهمة</button></div></form></section></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="app.js" defer></script>
   </body>
 </html>

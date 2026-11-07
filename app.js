@@ -1,172 +1,74 @@
-const state = {
-  data: { posts: [], categories: [], generatedAt: null },
-  activeCategory: 'الكل',
-  query: ''
-};
+const STORAGE_KEY = 'smart-daily-dashboard.tasks.v1';
+const SETTINGS_KEY = 'smart-daily-dashboard.settings.v1';
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+const priorityLabels = { urgent: 'عاجلة', high: 'مهمة', medium: 'متوسطة', low: 'خفيفة' };
+const statusLabels = { todo: 'قادمة', doing: 'قيد التنفيذ', done: 'مكتملة' };
+const priorityScore = { urgent: 4, high: 3, medium: 2, low: 1 };
+const energyLabels = { low: 'طاقة منخفضة', medium: 'طاقة متوسطة', high: 'طاقة عالية' };
+const weekdays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
-const els = {
-  grid: document.querySelector('#posts-grid'),
-  filters: document.querySelector('#filters'),
-  search: document.querySelector('#search-input'),
-  clear: document.querySelector('#clear-search'),
-  status: document.querySelector('#feed-status'),
-  empty: document.querySelector('#empty-state'),
-  updated: document.querySelector('#last-updated'),
-  total: document.querySelector('#total-count'),
-  categoryCount: document.querySelector('#category-count'),
-  keywordChips: document.querySelector('#keyword-chips'),
-  year: document.querySelector('#year')
-};
-
-const categoryLabels = {
-  'الكل': 'كل الفرص',
-  'دورات': 'دورات',
-  'برامج تدريبية': 'برامج تدريبية',
-  'ورش عمل': 'ورش عمل',
-  'محاضرات': 'محاضرات',
-  'تعاون': 'تعاون',
-  'حملات': 'حملات',
-  'توعية': 'توعية',
-  'بطولات': 'بطولات',
-  'هاكاثونات': 'هاكاثونات',
-  'مسابقات': 'مسابقات',
-  'مبادرات': 'مبادرات',
-  'أخرى': 'أخرى'
-};
-
-const DATA_SOURCES = [
-  'https://raw.githubusercontent.com/dkdsgf/dsa1-opportunities/main/data.json',
-  'data.json'
+const sampleTasks = [
+  { id: uid(), title: 'مراجعة نقاط العرض التقديمي', description: 'تأكد من ترتيب الشرائح والأرقام الأساسية قبل الإرسال.', category: 'عمل', priority: 'high', due: todayKey(), duration: 35, energy: 'medium', status: 'doing', createdAt: Date.now() - 7200000, completedAt: null },
+  { id: uid(), title: 'قراءة 20 صفحة من الكتاب', description: 'جلسة هادئة قبل نهاية اليوم.', category: 'تعلم', priority: 'medium', due: todayKey(), duration: 30, energy: 'low', status: 'todo', createdAt: Date.now() - 3600000, completedAt: null },
+  { id: uid(), title: 'المشي لمدة نصف ساعة', description: '', category: 'صحة', priority: 'low', due: todayKey(), duration: 30, energy: 'medium', status: 'todo', createdAt: Date.now() - 1800000, completedAt: null },
+  { id: uid(), title: 'إرسال ملخص الاجتماع', description: 'أرسل النقاط والإجراءات التالية للفريق.', category: 'عمل', priority: 'urgent', due: new Date(Date.now() - 86400000).toISOString().slice(0, 10), duration: 15, energy: 'low', status: 'todo', createdAt: Date.now() - 86400000, completedAt: null },
+  { id: uid(), title: 'حجز موعد الأسبوع القادم', description: '', category: 'شخصي', priority: 'medium', due: new Date(Date.now() + 86400000).toISOString().slice(0, 10), duration: 10, energy: 'low', status: 'done', createdAt: Date.now() - 172800000, completedAt: Date.now() - 86400000 }
 ];
 
-function escapeHTML(value = '') {
-  return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[char]));
-}
+const els = {
+  today: document.querySelector('#today-label'), progress: document.querySelector('#progress-value'), progressBar: document.querySelector('#progress-bar'), total: document.querySelector('#total-count'), active: document.querySelector('#active-count'), completed: document.querySelector('#completed-count'), completedNote: document.querySelector('#completed-note'), overdue: document.querySelector('#overdue-count'), overdueNote: document.querySelector('#overdue-note'), suggestionText: document.querySelector('#suggestion-text'), suggestionPriority: document.querySelector('#suggestion-priority'), suggestionTime: document.querySelector('#suggestion-time'), suggestionReason: document.querySelector('#suggestion-reason'), suggestionButton: document.querySelector('#start-suggestion'), timerDisplay: document.querySelector('#timer-display'), timerTask: document.querySelector('#timer-task'), timerStatus: document.querySelector('#timer-status'), timerToggle: document.querySelector('#timer-toggle'), timerReset: document.querySelector('#timer-reset'), search: document.querySelector('#task-search'), categoryFilter: document.querySelector('#category-filter'), priorityFilter: document.querySelector('#priority-filter'), weekChart: document.querySelector('#week-chart'), modal: document.querySelector('#task-modal'), modalTitle: document.querySelector('#modal-title'), form: document.querySelector('#task-form'), toast: document.querySelector('#toast'), year: document.querySelector('#year')
+};
 
-function formatDate(iso, fallback) {
-  if (!iso) return fallback || 'منشور حديثًا';
-  try {
-    return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
-  } catch { return fallback || 'منشور حديثًا'; }
-}
+let tasks = loadTasks();
+let editingId = null;
+let timer = { seconds: 1500, running: false, interval: null, taskId: null };
 
-function relativeUpdated(iso) {
-  if (!iso) return 'وقت التحديث غير متاح';
-  try {
-    const date = new Date(iso);
-    const delta = Math.max(0, Date.now() - date.getTime());
-    const hours = Math.floor(delta / 3600000);
-    if (hours < 1) return 'آخر تحديث: منذ أقل من ساعة';
-    if (hours < 24) return `آخر تحديث: منذ ${hours} ساعة`;
-    const days = Math.floor(hours / 24);
-    return `آخر تحديث: منذ ${days} يوم`;
-  } catch { return 'آخر تحديث غير متاح'; }
+function loadTasks() {
+  try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(saved) ? saved : sampleTasks; } catch { return sampleTasks; }
 }
+function saveTasks() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+function escapeHTML(value = '') { return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[char])); }
+function formatToday() { return new Intl.DateTimeFormat('ar-SA', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()); }
+function formatShortDate(value) { if (!value) return 'بدون موعد'; const date = new Date(`${value}T12:00:00`); return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(date); }
+function isOverdue(task) { return task.status !== 'done' && task.due && task.due < todayKey(); }
+function showToast(message) { els.toast.textContent = message; els.toast.classList.add('show'); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => els.toast.classList.remove('show'), 2400); }
+function filteredTasks() { const query = els.search.value.trim().toLocaleLowerCase('ar'); const category = els.categoryFilter.value; const priority = els.priorityFilter.value; return tasks.filter((task) => { const haystack = `${task.title} ${task.description || ''} ${task.category}`.toLocaleLowerCase('ar'); return (!query || haystack.includes(query)) && (category === 'all' || task.category === category) && (priority === 'all' || task.priority === priority); }); }
+function getSuggestion() { const open = tasks.filter((task) => task.status !== 'done'); return [...open].sort((a, b) => { const overdueDiff = Number(isOverdue(b)) - Number(isOverdue(a)); if (overdueDiff) return overdueDiff; const dueA = a.due || '9999-12-31'; const dueB = b.due || '9999-12-31'; if (dueA !== dueB) return dueA.localeCompare(dueB); const priorityDiff = priorityScore[b.priority] - priorityScore[a.priority]; return priorityDiff || (Number(a.duration) || 30) - (Number(b.duration) || 30); })[0] || null; }
+function renderStats() { const total = tasks.length; const done = tasks.filter((task) => task.status === 'done').length; const overdue = tasks.filter(isOverdue).length; const percent = total ? Math.round(done / total * 100) : 0; els.total.textContent = total; els.active.textContent = `${total - done} مفتوحة الآن`; els.completed.textContent = done; els.completedNote.textContent = done ? 'تقدم مستمر' : 'ابدأ بمهمة صغيرة'; els.overdue.textContent = overdue; els.overdueNote.textContent = overdue ? 'رتبها قبل أن تتراكم' : 'كل شيء تحت السيطرة'; els.progress.textContent = `${percent}%`; els.progressBar.style.width = `${percent}%`; }
+function renderFilters() { const categories = [...new Set(tasks.map((task) => task.category).filter(Boolean))].sort(); const current = els.categoryFilter.value; els.categoryFilter.innerHTML = '<option value="all">كل التصنيفات</option>' + categories.map((category) => `<option value="${escapeHTML(category)}">${escapeHTML(category)}</option>`).join(''); els.categoryFilter.value = categories.includes(current) ? current : 'all'; }
+function dueLabel(task) { if (isOverdue(task)) return '<span class="late">متأخرة</span>'; if (task.due === todayKey()) return 'اليوم'; if (task.due === new Date(Date.now() + 86400000).toISOString().slice(0, 10)) return 'غدًا'; return formatShortDate(task.due); }
+function taskCard(task) { const action = task.status === 'todo' ? ['start', 'ابدأ'] : task.status === 'doing' ? ['complete', 'أنجز'] : ['reopen', 'إعادة فتح']; return `<article class="task-card ${task.status === 'done' ? 'done' : ''}" data-id="${task.id}"><div class="task-card-top"><span class="task-category">${escapeHTML(task.category)}</span><span class="task-priority ${task.priority}">${priorityLabels[task.priority]}</span></div><h4 class="task-title">${escapeHTML(task.title)}</h4>${task.description ? `<p class="task-description">${escapeHTML(task.description)}</p>` : ''}<div class="task-meta"><span>◷ ${task.duration || 30} د</span><span>⌁ ${dueLabel(task)}</span><span>${energyLabels[task.energy] || 'طاقة متوسطة'}</span></div><div class="task-actions"><button class="task-action" data-action="${action[0]}" type="button">${action[1]}</button><button class="task-action" data-action="edit" type="button">تعديل</button><button class="task-action delete" data-action="delete" type="button">حذف</button></div></article>`; }
+function renderBoard() { const visible = filteredTasks(); ['todo', 'doing', 'done'].forEach((status) => { const list = document.querySelector(`#${status}-list`); const subset = visible.filter((task) => task.status === status); list.innerHTML = subset.length ? subset.map(taskCard).join('') : `<div class="lane-empty">${status === 'done' ? 'لا مهام مكتملة بعد' : 'لا توجد مهام هنا'}</div>`; document.querySelector(`#${status}-count`).textContent = subset.length; }); }
+function renderSuggestion() { const task = getSuggestion(); if (!task) { els.suggestionText.textContent = 'أنجزت كل مهامك. خذ نفسًا واحتفل بالتقدم.'; els.suggestionPriority.textContent = 'مكتمل'; els.suggestionTime.textContent = 'يوم منجز'; els.suggestionReason.textContent = 'لا توجد مهام مفتوحة'; els.suggestionButton.disabled = true; return; } els.suggestionText.textContent = task.title; els.suggestionPriority.textContent = priorityLabels[task.priority]; els.suggestionTime.textContent = `${task.duration || 30} دقيقة`; els.suggestionReason.textContent = isOverdue(task) ? 'متأخرة وتحتاج انتباهًا' : task.due === todayKey() ? 'موعدها اليوم' : 'أقرب مهمة حسب أولويتك'; els.suggestionButton.disabled = false; els.suggestionButton.dataset.id = task.id; }
+function renderWeek() { const days = []; for (let i = 6; i >= 0; i -= 1) { const date = new Date(); date.setHours(12, 0, 0, 0); date.setDate(date.getDate() - i); const key = date.toISOString().slice(0, 10); days.push({ key, label: weekdays[date.getDay()], count: tasks.filter((task) => task.status === 'done' && task.completedAt && new Date(task.completedAt).toISOString().slice(0, 10) === key).length, today: i === 0 }); } const max = Math.max(1, ...days.map((day) => day.count)); els.weekChart.innerHTML = days.map((day) => `<div class="day-bar ${day.today ? 'today' : ''}" title="${day.count} مكتملة"><span class="day-bar-value" style="--bar-height:${Math.max(5, day.count / max * 82)}%"></span><span class="day-bar-label">${day.today ? 'اليوم' : day.label.slice(0, 3)}</span></div>`).join(''); }
+function render() { renderStats(); renderFilters(); renderBoard(); renderSuggestion(); renderWeek(); }
+function openModal(task = null, status = 'todo') { editingId = task?.id || null; els.modalTitle.textContent = task ? 'تعديل المهمة' : 'مهمة جديدة'; const form = els.form.elements; form.title.value = task?.title || ''; form.description.value = task?.description || ''; form.category.value = task?.category || 'عمل'; form.priority.value = task?.priority || 'high'; form.due.value = task?.due || todayKey(); form.duration.value = task?.duration || 30; form.energy.value = task?.energy || 'medium'; form.status.value = task?.status || status; els.modal.hidden = false; setTimeout(() => form.title.focus(), 0); }
+function closeModal() { els.modal.hidden = true; editingId = null; }
+function handleSubmit(event) { event.preventDefault(); const form = event.currentTarget.elements; const payload = { title: form.title.value.trim(), description: form.description.value.trim(), category: form.category.value, priority: form.priority.value, due: form.due.value, duration: Math.max(5, Number(form.duration.value) || 30), energy: form.energy.value, status: form.status.value }; if (!payload.title) return; if (editingId) { const index = tasks.findIndex((task) => task.id === editingId); tasks[index] = { ...tasks[index], ...payload, completedAt: payload.status === 'done' ? (tasks[index].completedAt || Date.now()) : null }; showToast('تم تحديث المهمة'); } else { tasks.unshift({ ...payload, id: uid(), createdAt: Date.now(), completedAt: payload.status === 'done' ? Date.now() : null }); showToast('أضيفت المهمة إلى يومك'); } saveTasks(); closeModal(); render(); }
+function updateStatus(id, status) { const task = tasks.find((item) => item.id === id); if (!task) return; task.status = status; task.completedAt = status === 'done' ? (task.completedAt || Date.now()) : null; saveTasks(); render(); showToast(status === 'done' ? 'أحسنت، أغلقت المهمة.' : status === 'doing' ? 'بدأت المهمة.' : 'أعيدت المهمة للقائمة.'); }
+function deleteTask(id) { const task = tasks.find((item) => item.id === id); if (!task || !window.confirm(`حذف «${task.title}»؟`)) return; tasks = tasks.filter((item) => item.id !== id); saveTasks(); render(); showToast('حُذفت المهمة'); }
+function handleBoardClick(event) { const actionButton = event.target.closest('[data-action]'); const card = event.target.closest('[data-id]'); if (actionButton && card) { const { action } = actionButton.dataset; if (action === 'edit') openModal(tasks.find((task) => task.id === card.dataset.id)); if (action === 'delete') deleteTask(card.dataset.id); if (action === 'start') updateStatus(card.dataset.id, 'doing'); if (action === 'complete') updateStatus(card.dataset.id, 'done'); if (action === 'reopen') updateStatus(card.dataset.id, 'todo'); } }
+function setFocusTask(id) { const task = tasks.find((item) => item.id === id); if (!task) return; timer.taskId = id; timer.seconds = 1500; timer.running = true; if (task.status === 'todo') updateStatus(id, 'doing'); startTimer(); renderTimer(); }
+function startTimer() { clearInterval(timer.interval); timer.interval = setInterval(() => { timer.seconds -= 1; if (timer.seconds <= 0) { timer.seconds = 0; timer.running = false; clearInterval(timer.interval); showToast('انتهت جلسة التركيز. خذ استراحة قصيرة.'); } renderTimer(); }, 1000); }
+function renderTimer() { const minutes = String(Math.floor(timer.seconds / 60)).padStart(2, '0'); const seconds = String(timer.seconds % 60).padStart(2, '0'); els.timerDisplay.textContent = `${minutes}:${seconds}`; els.timerToggle.textContent = timer.running ? 'إيقاف مؤقت' : timer.seconds < 1500 ? 'استئناف' : 'ابدأ'; els.timerStatus.textContent = timer.running ? 'جارية الآن' : 'جاهز'; els.timerStatus.classList.toggle('running', timer.running); const task = tasks.find((item) => item.id === timer.taskId); els.timerTask.textContent = task ? task.title : 'اختر مهمة وابدأ جلسة قصيرة.'; }
+function toggleTimer() { if (timer.running) { timer.running = false; clearInterval(timer.interval); } else { timer.running = true; startTimer(); } renderTimer(); }
+function resetTimer() { timer.running = false; clearInterval(timer.interval); timer.seconds = 1500; renderTimer(); }
 
-function renderFilters() {
-  const categories = ['الكل', ...(state.data.categories || [])];
-  els.filters.innerHTML = categories.map((category) => `
-    <button class="filter-button ${category === state.activeCategory ? 'active' : ''}" type="button" role="tab" aria-selected="${category === state.activeCategory}" data-category="${escapeHTML(category)}">
-      ${escapeHTML(categoryLabels[category] || category)}
-    </button>
-  `).join('');
-  els.filters.querySelectorAll('[data-category]').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.activeCategory = button.dataset.category;
-      renderFilters();
-      renderPosts();
-    });
-  });
-}
-
-function renderKeywordChips() {
-  const keywords = state.data.searchKeywords || [];
-  els.keywordChips.innerHTML = keywords.map((keyword) => `
-    <a class="keyword-chip" href="https://x.com/search?q=${encodeURIComponent(`from:1_dsa1 "${keyword}"`)}&src=typed_query&f=live" target="_blank" rel="noreferrer" title="بحث كامل في X عن ${escapeHTML(keyword)}">${escapeHTML(keyword)} ↗</a>
-  `).join('');
-}
-
-function filteredPosts() {
-  const query = state.query.trim().toLocaleLowerCase('ar');
-  return (state.data.posts || []).filter((post) => {
-    const inCategory = state.activeCategory === 'الكل' || (post.categories || []).includes(state.activeCategory);
-    const searchable = `${post.text || ''} ${(post.categories || []).join(' ')}`.toLocaleLowerCase('ar');
-    return inCategory && (!query || searchable.includes(query));
-  });
-}
-
-function postCard(post) {
-  const category = (post.categories || [])[0] || 'أخرى';
-  const extraTags = (post.categories || []).slice(1, 3).map((tag) => `<span class="post-tag">#${escapeHTML(tag)}</span>`).join('');
-  return `
-    <article class="post-card">
-      <div class="card-top">
-        <span class="card-category">${escapeHTML(categoryLabels[category] || category)}</span>
-        <time class="card-date" datetime="${escapeHTML(post.publishedAt || '')}">${escapeHTML(formatDate(post.publishedAt, post.displayDate))}</time>
-      </div>
-      <p class="post-text">${escapeHTML(post.text)}</p>
-      <div class="post-footer">
-        <div class="post-tags">${extraTags || '<span class="post-tag">@1_dsa1</span>'}</div>
-        <a class="post-link" href="${escapeHTML(post.url)}" target="_blank" rel="noreferrer">التفاصيل <span aria-hidden="true">←</span></a>
-      </div>
-    </article>
-  `;
-}
-
-function renderPosts() {
-  const posts = filteredPosts();
-  els.grid.innerHTML = posts.map(postCard).join('');
-  els.empty.hidden = posts.length > 0;
-  els.grid.hidden = posts.length === 0;
-  const total = state.data.posts?.length || 0;
-  els.status.textContent = state.query || state.activeCategory !== 'الكل' ? `يعرض ${posts.length} من أصل ${total} منشورًا` : `يعرض أحدث ${posts.length} منشورًا مطابقًا`;
-}
-
-function renderData(data) {
-  state.data = data;
-  els.total.textContent = data.posts?.length || 0;
-  els.categoryCount.textContent = data.categories?.length || 0;
-  els.updated.textContent = relativeUpdated(data.generatedAt);
-  renderKeywordChips();
-  renderFilters();
-  renderPosts();
-}
-
-async function loadData() {
-  let lastError;
-  for (const source of DATA_SOURCES) {
-    try {
-      const response = await fetch(`${source}?v=${Date.now()}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      renderData(data);
-      return;
-    } catch (error) {
-      lastError = error;
-    }
-  }
-  {
-    els.updated.textContent = 'تعذر تحديث البيانات الآن';
-    els.status.textContent = 'تعذر جلب البيانات. جرّب تحديث الصفحة لاحقًا.';
-    els.grid.hidden = true;
-    els.empty.hidden = false;
-    els.empty.querySelector('h3').textContent = 'البيانات غير متاحة مؤقتًا';
-    els.empty.querySelector('p').textContent = 'تعذر تحميل آخر نسخة من المنشورات، لكن يمكنك زيارة الحساب الأصلي من الرابط أعلى الصفحة.';
-    console.error('Failed to load live and local data sources', lastError);
-  }
-}
-
-els.search.addEventListener('input', (event) => {
-  state.query = event.target.value;
-  els.clear.hidden = !state.query;
-  renderPosts();
-});
-els.clear.addEventListener('click', () => {
-  els.search.value = '';
-  state.query = '';
-  els.clear.hidden = true;
-  els.search.focus();
-  renderPosts();
-});
-els.year.textContent = new Date().getFullYear();
-loadData();
+document.querySelector('#today-label').textContent = formatToday();
+document.querySelector('#add-task-top').addEventListener('click', () => openModal());
+document.querySelector('#modal-close').addEventListener('click', closeModal);
+document.querySelector('#modal-cancel').addEventListener('click', closeModal);
+els.modal.addEventListener('click', (event) => { if (event.target === els.modal) closeModal(); });
+els.form.addEventListener('submit', handleSubmit);
+document.querySelector('#task-board').addEventListener('click', handleBoardClick);
+document.querySelectorAll('[data-add-status]').forEach((button) => button.addEventListener('click', () => openModal(null, button.dataset.addStatus)));
+els.search.addEventListener('input', renderBoard);
+els.categoryFilter.addEventListener('change', renderBoard);
+els.priorityFilter.addEventListener('change', renderBoard);
+els.suggestionButton.addEventListener('click', () => setFocusTask(els.suggestionButton.dataset.id));
+els.timerToggle.addEventListener('click', toggleTimer);
+els.timerReset.addEventListener('click', resetTimer);
+window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !els.modal.hidden) closeModal(); });
+renderTimer();
+render();
